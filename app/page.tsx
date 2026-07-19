@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { families, filterOptions, styles, type StyleItem } from "./style-data";
 
 type ComponentRecipe = {
@@ -110,6 +110,22 @@ export default function Home() {
   const [radius, setRadius] = useState(12);
   const [pageType, setPageType] = useState("SaaS 產品首頁");
   const [tone, setTone] = useState("專業但友善");
+  const [demoMenuOpen, setDemoMenuOpen] = useState(false);
+  const [demoModalOpen, setDemoModalOpen] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [demoEmail, setDemoEmail] = useState("");
+  const [demoFormMessage, setDemoFormMessage] = useState("");
+  const modalCloseRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!demoModalOpen) return;
+    modalCloseRef.current?.focus();
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setDemoModalOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [demoModalOpen]);
 
   const filteredStyles = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -144,6 +160,16 @@ export default function Home() {
       if (current.length >= 4) return [...current.slice(1), id];
       return [...current, id];
     });
+  }
+
+  function runLoadingDemo() {
+    setDemoLoading(true);
+    window.setTimeout(() => setDemoLoading(false), 1400);
+  }
+
+  function submitDemoForm(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setDemoFormMessage(demoEmail.includes("@") ? "訂閱完成，狀態已同步。" : "請輸入有效的 Email 格式。");
   }
 
   async function copyText(text: string, key: string) {
@@ -261,7 +287,53 @@ export default function Home() {
             <div className="recipe-copy"><span className="eyebrow">PROMPT RECIPE</span><h3>{selectedRecipe.title}</h3><p>{selectedRecipe.description}</p><div className="dark-prompt"><p>{selectedRecipe.prompt}</p><button type="button" onClick={() => copyText(selectedRecipe.prompt, "recipe")}>{copied === "recipe" ? "已複製 ✓" : "複製配方 ↗"}</button></div></div>
           </div>
         </div>
+
+        <div className="interaction-lab">
+          <div className="interaction-lab-heading"><div><span className="eyebrow">INTERACTION PLAYGROUND</span><h3>外觀之外，也要把狀態做完整。</h3></div><p>直接操作 menu、modal、表單驗證與 loading。這些行為會讓 AI 理解你要的是完整元件系統，不是一張靜態示意圖。</p></div>
+          <div className="interaction-grid">
+            <article className="interaction-card">
+              <div className="interaction-card-top"><span>01 / MENU</span><i className={demoMenuOpen ? "on" : ""}></i></div>
+              <div className="menu-demo">
+                <button type="button" className="menu-trigger" onClick={() => setDemoMenuOpen((value) => !value)} aria-expanded={demoMenuOpen} aria-controls="demo-menu">專案動作 <span>{demoMenuOpen ? "↑" : "↓"}</span></button>
+                {demoMenuOpen && <div className="demo-menu" id="demo-menu" role="menu"><button type="button" role="menuitem">建立副本</button><button type="button" role="menuitem">分享連結</button><button type="button" role="menuitem">封存專案</button></div>}
+              </div>
+              <small>ARIA EXPANDED · KEYBOARD FOCUS · CLICK FEEDBACK</small>
+            </article>
+
+            <article className="interaction-card">
+              <div className="interaction-card-top"><span>02 / MODAL</span><i className={demoModalOpen ? "on" : ""}></i></div>
+              <div className="modal-demo"><span className="modal-ghost"><i></i><i></i><i></i></span><button type="button" onClick={() => setDemoModalOpen(true)}>開啟確認視窗 ↗</button></div>
+              <small>FOCUS ENTRY · ESC TO CLOSE · BACKDROP</small>
+            </article>
+
+            <article className="interaction-card form-card">
+              <div className="interaction-card-top"><span>03 / FORM</span><i className={demoFormMessage.includes("完成") ? "on" : ""}></i></div>
+              <form onSubmit={submitDemoForm} noValidate>
+                <label htmlFor="demo-email">工作摘要寄送位置</label>
+                <div><input id="demo-email" type="email" value={demoEmail} onChange={(event) => { setDemoEmail(event.target.value); setDemoFormMessage(""); }} placeholder="you@example.com" aria-describedby="demo-form-message" /><button type="submit">送出</button></div>
+                <p id="demo-form-message" className={demoFormMessage.includes("完成") ? "success" : "error"} aria-live="polite">{demoFormMessage || "Label 保持可見，錯誤不只靠顏色。"}</p>
+              </form>
+            </article>
+
+            <article className="interaction-card loading-card">
+              <div className="interaction-card-top"><span>04 / LOADING</span><i className={demoLoading ? "on" : ""}></i></div>
+              <button type="button" className="loading-trigger" onClick={runLoadingDemo} disabled={demoLoading}>{demoLoading ? <><span className="spinner"></span>正在建立版本…</> : "執行 Loading 狀態"}</button>
+              <div className="loading-progress"><i className={demoLoading ? "running" : ""}></i></div>
+              <small>DISABLED STATE · STATUS COPY · REDUCED MOTION</small>
+            </article>
+          </div>
+        </div>
       </section>
+
+      {demoModalOpen && (
+        <div className="demo-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setDemoModalOpen(false); }}>
+          <div className="demo-modal" role="dialog" aria-modal="true" aria-labelledby="demo-modal-title">
+            <div className="demo-modal-top"><span>CONFIRM ACTION</span><button ref={modalCloseRef} type="button" onClick={() => setDemoModalOpen(false)} aria-label="關閉確認視窗">×</button></div>
+            <div><span className="modal-symbol">↗</span><h3 id="demo-modal-title">發布這套設計系統？</h3><p>確認後會建立一個可供團隊檢查的版本。這個範例示範焦點進入、Escape 關閉與背景遮罩。</p></div>
+            <div className="demo-modal-actions"><button type="button" onClick={() => setDemoModalOpen(false)}>取消</button><button type="button" onClick={() => setDemoModalOpen(false)}>確認發布</button></div>
+          </div>
+        </div>
+      )}
 
       <section className="section builder-section" id="builder">
         <div className="builder-intro"><span className="eyebrow">03 / PROMPT BUILDER</span><h2>把選擇組合成<br />一段可以開工的 Prompt。</h2><p>先描述目標，再定義視覺系統、互動規則與品質門檻。右側會依照你的選擇即時產生完整 instruction。</p><div className="formula"><span>目標</span><i>＋</i><span>風格</span><i>＋</i><span>規則</span><i>＝</i><b>好結果</b></div></div>
