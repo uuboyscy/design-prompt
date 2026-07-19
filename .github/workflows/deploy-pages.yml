@@ -43,14 +43,15 @@ jobs:
       - name: Build static site
         run: pnpm build
         env:
-          PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}
-          NEXT_PUBLIC_SITE_URL: ${{ steps.pages.outputs.base_url }}
+          # The site is served from the root of its custom domain.
+          PAGES_BASE_PATH: ""
+          NEXT_PUBLIC_SITE_URL: https://design-prompt.uuboyscy.dev
 
       - name: Test static export
         run: node --test tests/static-export.test.mjs
         env:
-          PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}
-          NEXT_PUBLIC_SITE_URL: ${{ steps.pages.outputs.base_url }}
+          PAGES_BASE_PATH: ""
+          NEXT_PUBLIC_SITE_URL: https://design-prompt.uuboyscy.dev
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4

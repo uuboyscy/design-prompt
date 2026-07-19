@@ -32,4 +32,4 @@ pnpm test
 
 專案已設定 Next.js static export，並包含 GitHub Actions 部署流程。請到 repository 的 **Settings → Pages**，將 **Source** 設為 **GitHub Actions**。之後每次推送到 `main` 都會重新部署。
 
-預設網址：<https://uuboyscy.github.io/design-prompt/>
+正式網址：<https://design-prompt.uuboyscy.dev/>（設定完成前可暫以 <https://uuboyscy.github.io/design-prompt/> 存取。）
