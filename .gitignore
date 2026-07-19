@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/.pnpm-store/
 /.pnp
 .pnp.*
 .yarn/*
@@ -40,3 +41,17 @@ next-env.d.ts
 /.wrangler/
 /outputs/
 /work/
+
+# Local-only ChatGPT Sites / Cloudflare scaffold
+/.openai/
+/app/chatgpt-auth.ts
+/build/
+/db/
+/drizzle/
+/examples/d1/
+/worker/
+/drizzle.config.ts
+/vite.config.ts
+
+# Use pnpm as the single package manager
+/package-lock.json
