@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
   const origin = `${protocol}://${host}`;
   const title = "Prompt Atelier｜AI 網頁 UI/UX Prompt 圖鑑";
-  const description = "比較 12 種網頁視覺風格、拆解元件 prompt 配方，互動組合一段可直接交給 AI 的完整設計指令。";
+  const description = "比較 36 種真正不同的網頁視覺系統，以年代、色彩、密度、形狀、動效與產業精準篩選，組合可直接交給 AI 的完整設計指令。";
 
   return {
     metadataBase: new URL(origin),
